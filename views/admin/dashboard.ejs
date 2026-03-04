@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Control Panel</title>
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>SQL Escape Room - Admin Dashboard</h1>
+
+  <h1>SQL Escape Room Admin Dashboard</h1>
+
+<table border="1" style="width:100%; border-collapse:collapse;">
+
+<tr>
+<th>Rank</th>
+<th>Team Name</th>
+<th>Member 1</th>
+<th>Member 2</th>
+<th>Email</th>
+<th>Current Level</th>
+<th>Status</th>
+<th>Start Time</th>
+<th>Finish Time</th>
+<th>Total Time Taken (seconds)</th>
+</tr>
+
+<% teams.forEach((team,index)=>{ %>
+
+<tr>
+
+<td><%= index+1 %></td>
+
+<td><%= team.team_name %></td>
+
+<td><%= team.member1 %></td>
+
+<td><%= team.member2 %></td>
+
+<td><%= team.email %></td>
+
+<td><%= team.current_level %></td>
+
+<td><%= team.status %></td>
+
+<td><%= team.start_time ? new Date(team.start_time*1000).toLocaleTimeString() : "-" %></td>
+
+<td><%= team.finish_time ? new Date(team.finish_time*1000).toLocaleTimeString() : "-" %></td>
+
+<td><%= team.total_time_taken ? team.total_time_taken : "-" %></td>
+
+</tr>
+
+<% }) %>
+
+</table>
+
+
+</div>
+    <script>
+  setTimeout(() => {
+    location.reload();
+  }, 10000);
+</script>
+<script>
+
+setTimeout(()=>{
+location.reload();
+},10000);
+
+</script>
+
+</body>
+</html>

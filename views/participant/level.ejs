@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Level <%= level %></title>
+
+<link rel="stylesheet" href="/css/main.css">
+
+<style>
+
+body{
+background:#0b0b0b;
+color:white;
+font-family:monospace;
+margin:0;
+padding:0;
+}
+
+.container{
+width:85%;
+margin:auto;
+margin-top:60px;
+}
+
+h1{
+font-size:40px;
+margin-bottom:10px;
+}
+
+.question{
+font-size:18px;
+margin-bottom:25px;
+}
+
+button{
+padding:10px 16px;
+background:#0f0;
+border:none;
+color:black;
+cursor:pointer;
+margin-top:10px;
+font-weight:bold;
+}
+
+button:hover{
+background:#00ff99;
+}
+
+textarea{
+width:100%;
+background:#111;
+color:#0f0;
+padding:10px;
+font-family:monospace;
+border:1px solid #444;
+}
+
+.timer{
+position:fixed;
+top:20px;
+right:30px;
+font-size:28px;
+background:#111;
+padding:10px 18px;
+border-radius:6px;
+border:1px solid #00ffcc;
+color:#00ffcc;
+font-weight:bold;
+}
+
+.result-box{
+margin-top:20px;
+background:#111;
+border:1px solid #0f0c;
+padding:12px;
+font-size:14px;
+color:#00ff99;
+overflow-x:auto;
+}
+
+.error-box{
+margin-top:15px;
+color:#ff4d4d;
+font-size:16px;
+}
+
+table{
+border-collapse:collapse;
+width:100%;
+margin-top:10px;
+}
+
+th,td{
+border:1px solid #333;
+padding:6px;
+text-align:left;
+}
+
+th{
+background:#111;
+color:#00ffcc;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="timer">
+⏱ <span id="timer"></span>
+</div>
+
+<div class="container">
+
+<h1>LEVEL <%= level %></h1>
+
+<div class="question">
+
+<% if(level == 1){ %>
+Count valid users where age is between 18 and 60 and email is not NULL.
+<% } %>
+
+<% if(level == 2){ %>
+Calculate total order amount for valid completed orders.
+<% } %>
+
+<% if(level == 3){ %>
+Calculate total payment amount where payment mode is Card, UPI or Cash and amount is greater than zero.
+<% } %>
+
+<% if(level == 4){ %>
+Find the highest points accumulated by a single user from purchase activities.
+<% } %>
+
+</div>
+
+<a href="/dataset/<%= level %>">
+<button>View Database</button>
+</a>
+
+<hr>
+
+<h2>SQL Console</h2>
+
+<textarea id="query" rows="6" placeholder="Write SQL query here"></textarea>
+
+<br>
+
+<button onclick="runQuery()">Run Query</button>
+
+<div id="result" class="result-box"></div>
+
+<div id="error" class="error-box"></div>
+
+<br>
+
+<button id="submitBtn" onclick="submitAnswer()" style="display:none;">
+Submit Answer
+</button>
+
+</div>
+
+<script>
+
+// ===== BACK BUTTON FIX =====
+
+window.addEventListener("pageshow", function(event){
+if(event.persisted) location.reload();
+});
+
+
+// ===== TIMER =====
+
+let timeLeft = <%= timeLeft %>;
+
+function updateTimer(){
+
+if(timeLeft <= 0){
+alert("Time expired");
+window.location="/";
+return;
+}
+
+let m=Math.floor(timeLeft/60);
+let s=timeLeft%60;
+
+document.getElementById("timer").innerText =
+m + ":" + s.toString().padStart(2,'0');
+
+timeLeft--;
+
+}
+
+updateTimer();
+setInterval(updateTimer,1000);
+
+
+// ===== RUN QUERY =====
+
+async function runQuery(){
+
+const query=document.getElementById("query").value;
+
+const resultBox=document.getElementById("result");
+const errorBox=document.getElementById("error");
+
+resultBox.innerHTML="";
+errorBox.innerText="";
+
+try{
+
+const res=await fetch("/test-query",{
+method:"POST",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({query})
+});
+
+const data=await res.json();
+
+if(!data.success){
+errorBox.innerText=data.error;
+return;
+}
+
+const rows=data.data;
+
+if(rows.length===0){
+resultBox.innerText="Query executed. No rows returned.";
+return;
+}
+
+
+// build result table
+
+let table="<table><tr>";
+
+Object.keys(rows[0]).forEach(col=>{
+table+="<th>"+col+"</th>";
+});
+
+table+="</tr>";
+
+rows.forEach(row=>{
+table+="<tr>";
+Object.values(row).forEach(val=>{
+table+="<td>"+val+"</td>";
+});
+table+="</tr>";
+});
+
+table+="</table>";
+
+resultBox.innerHTML=table;
+
+
+// store answer
+
+const firstRow=rows[0];
+const firstKey=Object.keys(firstRow)[0];
+
+window.lastResult=firstRow[firstKey];
+
+
+// show submit button
+
+document.getElementById("submitBtn").style.display="block";
+
+}catch(err){
+
+errorBox.innerText="Server error running query.";
+
+}
+
+}
+
+
+// ===== SUBMIT ANSWER =====
+
+async function submitAnswer(){
+
+const level=<%= level %>;
+
+if(window.lastResult===undefined){
+document.getElementById("error").innerText="Run query first.";
+return;
+}
+
+const res=await fetch("/submit-answer",{
+method:"POST",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+level:level,
+answer:window.lastResult
+})
+});
+
+const result=await res.text();
+
+if(result==="correct"){
+
+if(level===4){
+window.location="/final";
+}else{
+window.location="/level/"+(level+1);
+}
+
+}else{
+
+document.getElementById("error").innerText="Incorrect answer. Try again.";
+
+}
+
+}
+
+</script>
+
+</body>
+</html>

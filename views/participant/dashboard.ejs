@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+<div class="container">
+
+  <h1>Welcome <%= team.team_name %></h1>
+
+  <p>Current Level: <%= team.current_level %></p>
+
+  <a href="/level/<%= team.current_level %>">
+    <button>Go To Level</button>
+  </a>
+
+</div>
+</body>
+</html>

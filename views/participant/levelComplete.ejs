@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Level Complete</title>
+<link rel="stylesheet" href="/css/main.css">
+
+<style>
+
+body{
+background:#0b0b0b;
+color:white;
+font-family:monospace;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.container{
+text-align:center;
+}
+
+button{
+padding:12px 20px;
+background:#1e88e5;
+border:none;
+color:white;
+font-size:18px;
+cursor:pointer;
+margin-top:20px;
+}
+
+button:hover{
+background:#1565c0;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>LEVEL <%= level %> COMPLETE</h1>
+
+<p>
+Security layer <%= level %> restored successfully.
+</p>
+
+<% if(level < 4){ %>
+
+<a href="/level/<%= level + 1 %>">
+<button>Enter Level <%= level + 1 %></button>
+</a>
+
+<% } %>
+
+<% if(level === 4){ %>
+
+<a href="/escape">
+<button>Escape Database</button>
+</a>
+
+<% } %>
+
+</div>
+
+</body>
+</html>
